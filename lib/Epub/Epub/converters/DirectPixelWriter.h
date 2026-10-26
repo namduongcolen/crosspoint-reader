@@ -50,8 +50,8 @@ struct DirectPixelWriter {
 
     switch (renderer.getOrientation()) {
       case GfxRenderer::Portrait:
-        // phyX = y, phyY = (phyH-1) - x
-        phyXBase = 0;
+        // phyX = y + deadZone, phyY = (phyH-1) - x
+        phyXBase = GfxRenderer::kDeadZonePx;
         phyYBase = phyH - 1;
         phyXStepX = 0;
         phyYStepX = -1;
@@ -77,8 +77,8 @@ struct DirectPixelWriter {
         phyYStepY = 0;
         break;
       case GfxRenderer::LandscapeCounterClockwise:
-        // phyX = x, phyY = y
-        phyXBase = 0;
+        // phyX = x + deadZone, phyY = y
+        phyXBase = GfxRenderer::kDeadZonePx;
         phyYBase = 0;
         phyXStepX = 1;
         phyYStepX = 0;

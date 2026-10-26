@@ -373,7 +373,7 @@ static inline void rotateCoordinates(const GfxRenderer::Orientation orientation,
     case GfxRenderer::Portrait: {
       // Logical portrait (480x800) → panel (800x480)
       // Rotation: 90 degrees clockwise
-      *phyX = y;
+      *phyX = y + GfxRenderer::kDeadZonePx;
       *phyY = panelHeight - 1 - x;
       break;
     }
@@ -392,7 +392,7 @@ static inline void rotateCoordinates(const GfxRenderer::Orientation orientation,
     }
     case GfxRenderer::LandscapeCounterClockwise: {
       // Logical landscape (800x480) aligned with panel orientation
-      *phyX = x;
+      *phyX = x + GfxRenderer::kDeadZonePx;
       *phyY = y;
       break;
     }
@@ -1168,7 +1168,7 @@ void GfxRenderer::fillRectImpl(const int x, const int y, const int width, const 
       switch (orientation) {
         case Portrait:
           lxBase = panelHeight - 1 - samplePy;
-          lyBase = byteStart * 8;
+          lyBase = byteStart * 8 - kDeadZonePx;
           break;
         case PortraitInverted:
           lxBase = samplePy;
@@ -1179,7 +1179,7 @@ void GfxRenderer::fillRectImpl(const int x, const int y, const int width, const 
           lyBase = panelHeight - 1 - samplePy;
           break;
         case LandscapeCounterClockwise:
-          lxBase = byteStart * 8;
+          lxBase = byteStart * 8 - kDeadZonePx;
           lyBase = samplePy;
           break;
       }
@@ -1941,8 +1941,8 @@ int GfxRenderer::getScreenWidth() const {
       return panelHeight;
     case LandscapeClockwise:
     case LandscapeCounterClockwise:
-      // 800px wide in landscape logical coordinates
-      return panelWidth;
+      // 800px wide in landscape logical coordinates (minus dead strip)
+      return panelWidth - kDeadZonePx;
   }
   return panelHeight;
 }
@@ -1951,14 +1951,14 @@ int GfxRenderer::getScreenHeight() const {
   switch (orientation) {
     case Portrait:
     case PortraitInverted:
-      // 800px tall in portrait logical coordinates
-      return panelWidth;
+      // 800px tall in portrait logical coordinates (minus dead strip)
+      return panelWidth - kDeadZonePx;
     case LandscapeClockwise:
     case LandscapeCounterClockwise:
       // 480px tall in landscape logical coordinates
       return panelHeight;
   }
-  return panelWidth;
+  return panelWidth - kDeadZonePx;
 }
 
 void GfxRenderer::tapToLogical(float nx, float ny, int& outX, int& outY) const {
@@ -1972,7 +1972,7 @@ void GfxRenderer::tapToLogical(float nx, float ny, int& outX, int& outY) const {
   switch (orientation) {
     case Portrait:
       outX = panelHeight - 1 - phyY;
-      outY = phyX;
+      outY = phyX - kDeadZonePx;
       break;
     case PortraitInverted:
       outX = phyY;
@@ -1984,7 +1984,7 @@ void GfxRenderer::tapToLogical(float nx, float ny, int& outX, int& outY) const {
       break;
     case LandscapeCounterClockwise:
     default:
-      outX = phyX;
+      outX = phyX - kDeadZonePx;
       outY = phyY;
       break;
   }

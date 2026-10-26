@@ -37,6 +37,16 @@ class GfxRenderer {
   enum RenderMode { BW, GRAYSCALE_LSB, GRAYSCALE_MSB };
 
   // Logical screen orientation from the perspective of callers
+  // Broken-screen workaround: physical panel columns [0, DEAD_ZONE_PX) are never
+  // drawn to. In Portrait that strip is the top edge of the screen. All logical
+  // sizes shrink by DEAD_ZONE_PX and coordinates are shifted past the dead strip,
+  // so every screen lays itself out inside the working area. Keep it a multiple of 8.
+#ifndef DEAD_ZONE_PX
+#define DEAD_ZONE_PX 0
+#endif
+  static constexpr int kDeadZonePx = DEAD_ZONE_PX;
+  static_assert(kDeadZonePx % 8 == 0, "DEAD_ZONE_PX must be a multiple of 8");
+
   enum Orientation {
     Portrait,                  // 480x800 logical coordinates (current default)
     LandscapeClockwise,        // 800x480 logical coordinates, rotated 180° (swap top/bottom)
