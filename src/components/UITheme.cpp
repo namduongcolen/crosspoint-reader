@@ -81,6 +81,13 @@ const ThemeMetrics& UITheme::getMetrics() const {
     if (touch) {
       adjustedMetrics.buttonHintsHeight = 0;
     }
+    if (GfxRenderer::kDeadZonePx > 0) {
+      // Short screen: drop the big cover so every Home option fits.
+      // "Continue Reading" becomes the first menu row instead.
+      adjustedMetrics.homeCoverTileHeight = 0;
+      adjustedMetrics.homeContinueReadingInMenu = true;
+      adjustedMetrics.homeRecentBooksCount = 1;
+    }
     metricsForTouch = touch;
     metricsValid = true;
   }

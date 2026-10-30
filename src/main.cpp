@@ -638,6 +638,16 @@ void setup() {
 
   HalSystem::checkPanic();
 
+  // Broken-screen workaround: /deadzone.txt holds the height in pixels of the
+  // damaged strip at the top of the screen (portrait). Missing file = build default.
+  {
+    std::string deadZoneText;
+    if (Storage.readFileToString("MAIN", "/deadzone.txt", 16, deadZoneText)) {
+      GfxRenderer::setDeadZone(atoi(deadZoneText.c_str()));
+    }
+    LOG_INF("MAIN", "Dead zone: %d px", GfxRenderer::kDeadZonePx);
+  }
+
   APP_STATE.loadFromFile();
   const bool isSleepWake = wakeupReason == HalGPIO::WakeupReason::PowerButton;
   const bool isPersistedSleepWake = isSleepWake && !APP_STATE.showBootScreen;

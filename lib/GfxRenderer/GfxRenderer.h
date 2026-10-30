@@ -37,15 +37,20 @@ class GfxRenderer {
   enum RenderMode { BW, GRAYSCALE_LSB, GRAYSCALE_MSB };
 
   // Logical screen orientation from the perspective of callers
-  // Broken-screen workaround: physical panel columns [0, DEAD_ZONE_PX) are never
-  // drawn to. In Portrait that strip is the top edge of the screen. All logical
-  // sizes shrink by DEAD_ZONE_PX and coordinates are shifted past the dead strip,
-  // so every screen lays itself out inside the working area. Keep it a multiple of 8.
+  // Broken-screen workaround: physical panel columns [0, kDeadZonePx) are never
+  // drawn to. In Portrait that strip is the top edge of the screen. Logical sizes
+  // shrink by kDeadZonePx and coordinates skip the dead strip. DEAD_ZONE_PX is the
+  // default; /deadzone.txt on the SD card overrides it at boot (setDeadZone).
 #ifndef DEAD_ZONE_PX
 #define DEAD_ZONE_PX 0
 #endif
-  static constexpr int kDeadZonePx = DEAD_ZONE_PX;
-  static_assert(kDeadZonePx % 8 == 0, "DEAD_ZONE_PX must be a multiple of 8");
+  static inline int kDeadZonePx = DEAD_ZONE_PX;
+  // Rounds to a multiple of 8 and clamps so at least 200 px stay usable.
+  static void setDeadZone(int px) {
+    if (px < 0) px = 0;
+    if (px > HalDisplay::DISPLAY_WIDTH - 200) px = HalDisplay::DISPLAY_WIDTH - 200;
+    kDeadZonePx = (px / 8) * 8;
+  }
 
   enum Orientation {
     Portrait,                  // 480x800 logical coordinates (current default)
